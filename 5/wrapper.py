@@ -8,11 +8,11 @@ if len(sys.argv) == 1:
 
 p = [int(x) for x in open(sys.argv[1], "r").readline().split(',')]
 
-def get_input():
+def get_input(comp):
     return int(input())
-def cb(x):
+def cb(comp, x):
     print(x)
-def on_exit():
+def on_exit(comp):
     exit(0)
 c = Comp(p, get_input, cb, on_exit)
 c.run()
