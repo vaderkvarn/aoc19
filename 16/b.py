@@ -1,5 +1,5 @@
-st = open("test_input2", "r").readline().strip()
-for r in range(10):
+st = open("test_input1", "r").readline().strip()
+for r in range(1, 10):
     input = ""
     for i in range(r):
         input += st
