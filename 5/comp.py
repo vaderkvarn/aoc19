@@ -68,7 +68,7 @@ class Rel(Ins):
         return self.next()
 
 class Comp: 
-    def __init__(self, p, get_input, on_output, on_exit):
+    def __init__(self, p, get_input, on_output, on_exit=lambda c: 0):
         self.p = p
         self.get_input = get_input
         self.cb = on_output

@@ -1,24 +1,19 @@
-st = open("test_input1", "r").readline().strip()
-for r in range(1, 10):
-    input = ""
-    for i in range(r):
-        input += st
-    s = [int(x) for x in input]
-    p0 = [0, 1, 0, -1]
-    num_phases = 100
-    for phase in range(num_phases):
-        out = []
-        for i in range(len(s)):
-            p = []
-            for a in p0:
-                p.append([a]*(i+1))
-            p = [a for l in p for a in l]
-            tot = 0
-            cur_p = 1
-            for j in range(len(s)):
-                tot += s[j]*p[cur_p]
-                cur_p = (cur_p + 1)%len(p)
-            out.append(int(str(tot)[-1]))
-        s = out[:]
-    print("".join(map(str, s))[:8])
+input = open("input", "r").readline().strip()
 
+def repeat_input(input, n):
+    s = ""
+    for i in range(n):
+        s += input
+    return s
+
+index = int(input[:7])
+
+data = repeat_input(input, 10000)[index:]
+
+s = [int(x) for x in data]
+num_phases = 100
+for phase in range(num_phases):
+    for i in range(len(s) - 2, -1, -1):
+        s[i] = (s[i] + s[i + 1]) % 10
+res = "".join(map(str, s))
+print(res[:8])
