@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 import sys
 from comp import Comp
+from collections import defaultdict
+from itertools import chain
 
 
 if len(sys.argv) == 1:
-    print("Usage: python3 both.py <program>")
+    print("Usage: python3 b.py <program>")
     exit(1)
 
 p = [int(x) for x in open(sys.argv[1], "r").readline().split(',')]
@@ -37,8 +39,6 @@ NORTH = 0
 EAST = 1
 SOUTH = 2
 WEST = 3
-
-dir_name = ["NORTH", "EAST", "SOUTH", "WEST"]
 
 def is_scaffold(m, pos, size):
     x, y = pos
@@ -93,29 +93,57 @@ def path_to_ascii(path):
     
     return l
 
+
+def get_largest_repeating_sequences(path):
+    paths = defaultdict(int)
+    for i in range(len(path)):
+        for j in range(i+1, len(path)):
+            if len(path_to_ascii(path[i:j])) <= 20:
+                paths[tuple(path[i:j])] += 1
+    return list(map(list, sorted(paths.keys(), key=lambda p: paths[p]*len(p), reverse=True)))
+
+
+letters = []
+funcs = []
+def build(path, i, rs, parts, res):
+    if len(parts) > 3: return
+    if list(chain.from_iterable(res)) == path:
+        for p in parts: funcs.append(p)
+        for r in res:
+            if r == parts[0]: letters.append('A')
+            if r == parts[1]: letters.append('B')
+            if r == parts[2]: letters.append('C')
+        return
+    for part in parts:
+        if path[i:i + len(part)] == part:
+            build(path, i + len(part), rs[:], parts[:], res[:] + [part])
+    for r in rs:
+        if path[i:i + len(r)] == r:
+            build(path, i + len(r), rs[:], parts[:] + [r], res[:] + [r])
+
 m = get_map(p[:])
 start_pos, start_dir = get_start_values(m)
 path = get_full_path(m, start_pos, start_dir)
+rs = get_largest_repeating_sequences(path)
 
-def run(p, main, a, b, c, vid):
+build(path, 0, rs, [], [])
+
+main = list(map(ord, list(",".join(letters))))
+main.append(ord("\n"))
+funcs = [path_to_ascii(f) for f in funcs]
+
+def run(p, main, funcs, vid):
     p[0] = 2
+    [a, b, c] = funcs
     inputs = main + a + b + c + vid
-    print(inputs)
-    print("".join(list(map(chr, inputs))))
-    row = []
-    m = []
+    output = 0
     def cb(comp, x):
-        nonlocal row
-        nonlocal m
-        if chr(x) == '\n':
-            m.append(row)
-            row = []
-        else: row.append(chr(x))
+        nonlocal output
+        output = x
     def get_input(comp):
         return inputs.pop(0)
     c = Comp(p, get_input, cb)
     c.run()
-    for row in m:
-        print("".join(row))
+    print(output)
 
-run(p[:], [ord("A"), ord(","), ord("B"), ord("\n")], path_to_ascii(path[:3]), path_to_ascii(path[3:5]), path_to_ascii(path[5:7]), [ord("y"), ord("\n")])
+run(p[:], main, funcs, [ord("n"), ord("\n")])
