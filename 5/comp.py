@@ -37,11 +37,18 @@ class Mul(Ins):
         return self.next()
 class Input(Ins):
     def exec(self):
-        self.write(0, self.comp.get_input(self.comp))
+        arg = self.comp.get_input(self.comp)
+        if self.comp.ascii_mode:
+            arg = ord(arg)
+        self.write(0, arg)
         return self.next()
 class Output(Ins):
     def exec(self):
-        self.comp.cb(self.comp, self.get_arg(0))
+        arg = self.get_arg(0)
+        if self.comp.ascii_mode:
+            if arg < 128:
+                arg = chr(arg)
+        self.comp.cb(self.comp, arg)
         return self.next()
 class Halt(Ins):
     def exec(self):
@@ -68,7 +75,7 @@ class Rel(Ins):
         return self.next()
 
 class Comp: 
-    def __init__(self, p, get_input, on_output, on_exit=lambda c: 0):
+    def __init__(self, p, get_input, on_output, on_exit=lambda c: 0, ascii_mode=False):
         self.p = p
         self.get_input = get_input
         self.cb = on_output
@@ -77,6 +84,7 @@ class Comp:
         self.i = 0
         self.done = False
         self.rel = 0
+        self.ascii_mode = ascii_mode
         self.instructions = {
             1:  Add,
             2:  Mul,
